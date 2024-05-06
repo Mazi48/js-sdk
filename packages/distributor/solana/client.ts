@@ -45,6 +45,7 @@ import {
 } from "./generated/instructions";
 import { ClaimStatus, MerkleDistributor } from "./generated/accounts";
 import {
+  calculateLockedAmountAvailable,
   getClaimantStatusPda,
   getDistributorPda,
   getEventAuthorityPda,
@@ -224,7 +225,14 @@ export default class SolanaDistributorClient {
     }
 
     const nowTs = new BN(Math.floor(Date.now() / 1000));
-    if (claimStatus || (data.amountLocked.gtn(0) && nowTs.sub(distributor.startTs).gte(distributor.unlockPeriod))) {
+    const availableLockedAmount = calculateLockedAmountAvailable({
+      lockedAmount: data.amountLocked,
+      startTs: distributor.startTs,
+      endTs: distributor.endTs,
+      currTs: nowTs,
+      unlockPeriod: distributor.unlockPeriod,
+    });
+    if (claimStatus || availableLockedAmount.eqn(0)) {
       ixs.push(claimLocked(accounts, this.programId));
     }
 

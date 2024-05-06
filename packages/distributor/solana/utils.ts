@@ -1,3 +1,5 @@
+import BN from "bn.js";
+
 import { SignerWalletAdapter } from "@solana/wallet-adapter-base";
 import { Connection, Keypair, PublicKey, Transaction, VersionedTransaction } from "@solana/web3.js";
 import { ContractError } from "@streamflow/common";
@@ -52,3 +54,49 @@ export async function wrappedSignAndExecuteTransaction(
     throw err;
   }
 }
+
+interface ICalculateUnlockedAmount {
+  lockedAmount: BN;
+  startTs: BN;
+  endTs: BN;
+  currTs: BN;
+  unlockPeriod: BN;
+}
+
+interface ICalculateAmountPerUnlock {
+  lockedAmount: BN;
+  startTs: BN;
+  endTs: BN;
+  unlockPeriod: BN;
+}
+
+export const calculateLockedAmountAvailable = ({
+  lockedAmount,
+  startTs,
+  endTs,
+  currTs,
+  unlockPeriod,
+}: ICalculateUnlockedAmount): BN => {
+  if (startTs.lt(currTs.sub(unlockPeriod))) return new BN(0);
+  if (startTs.gte(endTs)) return lockedAmount;
+
+  const timeIntoUnlock = currTs.sub(startTs);
+  const unlocksPassed = timeIntoUnlock.div(unlockPeriod);
+  const amountPerUnlock = calculateAmountPerUnlock({ lockedAmount, startTs, endTs, unlockPeriod });
+  return unlocksPassed.mul(amountPerUnlock);
+};
+
+export const calculateAmountPerUnlock = ({
+  lockedAmount,
+  startTs,
+  endTs,
+  unlockPeriod,
+}: ICalculateAmountPerUnlock): BN => {
+  if (lockedAmount.eqn(0)) return new BN(0);
+
+  const totalDuration = endTs.sub(startTs);
+  if (unlockPeriod.gte(totalDuration)) return lockedAmount;
+
+  const totalUnlocks = totalDuration.div(unlockPeriod);
+  return lockedAmount.div(totalUnlocks);
+};
