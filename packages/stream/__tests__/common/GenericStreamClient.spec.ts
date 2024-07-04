@@ -1,15 +1,15 @@
 import { Wallet } from "ethers";
 
-import { StreamflowAptos, StreamflowEVM, StreamflowSolana, StreamflowSui } from "../../index";
+import { StreamflowAptos, StreamflowEVM, StreamflowSolana, StreamflowSui } from "../../index.js";
 import {
   default as GenericStreamClient,
   SolanaStreamClientOptions,
   SuiStreamClientOptions,
   AptosStreamClientOptions,
   EvmStreamClientOptions,
-} from "../../common/GenericStreamClient";
-import { IChain, ICluster } from "../../common/types";
-import { BaseStreamClient } from "../../common/BaseStreamClient";
+} from "../../common/GenericStreamClient.js";
+import { IChain, ICluster } from "../../common/types.js";
+import { BaseStreamClient } from "../../common/BaseStreamClient.js";
 
 type StreamClientOptions =
   | SolanaStreamClientOptions

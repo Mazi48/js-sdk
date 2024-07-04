@@ -1,7 +1,7 @@
 import { BN } from "bn.js";
 
-import AptosStreamClient from "../../aptos/StreamClient";
-import { ICluster } from "../../common/types";
+import AptosStreamClient from "../../aptos/StreamClient.js";
+import { ICluster } from "../../common/types.js";
 
 describe("AptosStreamClient", () => {
   describe("init", () => {
